@@ -10,6 +10,7 @@ from settings import MPESA_BASE_URL
 
 
 class MpesaClient:
+
     BASE_URL = MPESA_BASE_URL
     ENDPOINTS = {
         'get_token': '/oauth/v1/generate',
@@ -23,12 +24,12 @@ class MpesaClient:
         if not self.BASE_URL:
             raise exceptions.ImproperMpesaSetup('MPESA_BASE_URL env variable has not been set.')
 
-        self.consumer_key = consumer_key
-        self.consumer_secret = consumer_secret
+        self._consumer_key = consumer_key
+        self._consumer_secret = consumer_secret
 
         if token and token_expiry:
-            self.token = token
-            self.token_expiry = token_expiry
+            self._token = token
+            self._token_expiry = token_expiry
         else:
             self._get_token()
 
@@ -55,8 +56,8 @@ class MpesaClient:
                 'grant_type': 'client_credentials'
             },
             auth=HTTPBasicAuth(
-                username=self.consumer_key,
-                password=self.consumer_secret,
+                username=self._consumer_key,
+                password=self._consumer_secret,
             )
 
         )
@@ -69,10 +70,10 @@ class MpesaClient:
 
         try:
             response_data = response.json()
-            self.token = response_data['access_token']
+            self._token = response_data['access_token']
             # expire token a minute before for sanity
             expires_in_secs = int(response_data['expires_in']) - 60
-            self.token_expiry = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in_secs)
+            self._token_expiry = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in_secs)
         except (KeyError, ValueError, TypeError):
             raise exceptions.BadMpesaResponseData(
                 message='Invalid token response data.',
@@ -81,4 +82,4 @@ class MpesaClient:
 
     @property
     def is_valid_token(self):
-        return datetime.datetime.utcnow() < self.token_expiry
+        return datetime.datetime.utcnow() < self._token_expiry
