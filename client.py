@@ -6,24 +6,20 @@ from requests.auth import HTTPBasicAuth
 
 import exceptions
 
-from settings import MPESA_BASE_URL
-
 
 class MpesaClient:
 
-    BASE_URL = MPESA_BASE_URL
     ENDPOINTS = {
         'get_token': '/oauth/v1/generate',
     }
 
     def __init__(self, consumer_key: str,
                  consumer_secret: str,
+                 base_url: str,
                  token: str = None,
                  token_expiry: datetime.datetime = None) -> None:
 
-        if not self.BASE_URL:
-            raise exceptions.ImproperMpesaSetup('MPESA_BASE_URL env variable has not been set.')
-
+        self._base_url = base_url
         self._consumer_key = consumer_key
         self._consumer_secret = consumer_secret
 
@@ -39,14 +35,14 @@ class MpesaClient:
         :param endpoint_name: name of the endpoint (key in cls.endpoints)
         :return composed_url: the composed url
         """
-        if endpoint_name not in self.ENDPOINTS.values():
-            raise exceptions.BadMpesaEndpoint
+        if endpoint_name not in self.ENDPOINTS.keys():
+            raise exceptions.BadMpesaEndpoint(endpoint_name=endpoint_name)
 
-        return f'{self.BASE_URL}{self.ENDPOINTS[endpoint_name]}'
+        return f'{self._base_url}{self.ENDPOINTS[endpoint_name]}'
 
     def _get_token(self) -> None:
         """
-        Retrieve the mpesa token, token expiry and set it as an instance variable.
+        Retrieve a valid mpesa token, token expiry and set it as an instance variable.
         :return:
         """
         url = self._get_url(endpoint_name='get_token')
@@ -79,6 +75,11 @@ class MpesaClient:
                 message='Invalid token response data.',
                 data=response.text
             )
+
+    def refresh_token(self) -> None:
+        if self.is_valid_token:
+            return
+        self._get_token()
 
     @property
     def is_valid_token(self):
