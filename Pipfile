@@ -9,6 +9,7 @@ pytest = "*"
 [packages]
 requests = "*"
 python-dotenv = "*"
+cryptography = "*"
 
 [requires]
 python_version = "3.8.1"

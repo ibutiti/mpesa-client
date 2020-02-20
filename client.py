@@ -9,7 +9,7 @@ import exceptions
 
 class MpesaClient:
 
-    ENDPOINTS = {
+    ENDPOINTS: dict[str:str] = {
         'get_token': '/oauth/v1/generate',
     }
 
@@ -19,13 +19,13 @@ class MpesaClient:
                  token: str = None,
                  token_expiry: datetime.datetime = None) -> None:
 
-        self._base_url = base_url
-        self._consumer_key = consumer_key
-        self._consumer_secret = consumer_secret
+        self._base_url: str = base_url
+        self._consumer_key: str = consumer_key
+        self._consumer_secret: str = consumer_secret
 
         if token and token_expiry:
-            self._token = token
-            self._token_expiry = token_expiry
+            self._token: str = token
+            self._token_expiry: datetime.datetime = token_expiry
         else:
             self._get_token()
 
@@ -45,8 +45,8 @@ class MpesaClient:
         Retrieve a valid mpesa token, token expiry and set it as an instance variable.
         :return:
         """
-        url = self._get_url(endpoint_name='get_token')
-        response = requests.get(
+        url: str = self._get_url(endpoint_name='get_token')
+        response: requests.Response = requests.get(
             url=url,
             params={
                 'grant_type': 'client_credentials'
@@ -65,11 +65,11 @@ class MpesaClient:
             )
 
         try:
-            response_data = response.json()
-            self._token = response_data['access_token']
+            response_data: dict = response.json()
+            self._token: str = response_data['access_token']
             # expire token a minute before for sanity
-            expires_in_secs = int(response_data['expires_in']) - 60
-            self._token_expiry = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in_secs)
+            expires_in_secs: int = int(response_data['expires_in']) - 60
+            self._token_expiry: datetime.datetime = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in_secs)
         except (KeyError, ValueError, TypeError):
             raise exceptions.BadMpesaResponseData(
                 message='Invalid token response data.',
@@ -82,5 +82,5 @@ class MpesaClient:
         self._get_token()
 
     @property
-    def is_valid_token(self):
+    def is_valid_token(self) -> bool:
         return datetime.datetime.utcnow() < self._token_expiry

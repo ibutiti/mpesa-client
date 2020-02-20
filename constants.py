@@ -1,4 +1,4 @@
-ERROR_CODES = {
+ERROR_CODES: dict = {
     0: 'Success',
     1: 'Insufficient Funds',
     2: 'Less Than Minimum Transaction Value',
@@ -18,13 +18,13 @@ ERROR_CODES = {
     26: 'Traffic blocking condition in place',
 }
 
-IDENTIFIER_TYPES = {
+IDENTIFIER_TYPES: dict = {
     1: 'MSISDN',
     2: 'Till Number',
     4: 'Shortcode'
 }
 
-CLIENT_RESPONSE_CODES = {
+CLIENT_RESPONSE_CODES: dict = {
     '0': 'Success (for C2B)',
     '00000000': 'Success (For APIs that are not C2B)',
 }
