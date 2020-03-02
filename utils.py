@@ -1,14 +1,19 @@
 from base64 import b64encode
 
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
+
 
 def encrypt_initiator_password(mpesa_certificate_file_location, initiator_password):
-    # open certificate file and read its data
+    with open(mpesa_certificate_file_location, 'r') as f:
+        cert_data = f.read()
 
-    # close file
+    cert = x509.load_pem_x509_certificate(
+        data=bytes(cert_data, 'utf-8'),
+        backend=default_backend(),
+    )
+    pub_key = cert.public_key()
+    cipher = pub_key.encrypt(bytes(initiator_password, 'utf-8'), PKCS1v15)
 
-    # get the certificate
-
-    # get publisher key
-
-    # get rsa key from publisher key
-    pass
+    return b64encode(cipher)

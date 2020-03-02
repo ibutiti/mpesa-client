@@ -11,6 +11,7 @@ class MpesaClient:
 
     ENDPOINTS: dict[str:str] = {
         'get_token': '/oauth/v1/generate',
+        'send_stk_push': '/mpesa/stkpush/v1/processrequest'
     }
 
     def __init__(self, consumer_key: str,
@@ -84,3 +85,6 @@ class MpesaClient:
     @property
     def is_valid_token(self) -> bool:
         return datetime.datetime.utcnow() < self._token_expiry
+
+    def send_stk_push_request(self, business_short_code: int):
+        pass
