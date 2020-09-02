@@ -14,6 +14,6 @@ def encrypt_initiator_password(mpesa_certificate_file_location, initiator_passwo
         backend=default_backend(),
     )
     pub_key = cert.public_key()
-    cipher = pub_key.encrypt(bytes(initiator_password, 'utf-8'), PKCS1v15)
+    cipher = pub_key.encrypt(bytes(initiator_password, 'utf-8'), PKCS1v15())
 
     return b64encode(cipher)
